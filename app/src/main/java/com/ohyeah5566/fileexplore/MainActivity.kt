@@ -13,6 +13,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class MainActivity : AppCompatActivity() {
+    private val viewModel by viewModel<FileExploreViewModel>()
     lateinit var binding: ActivityMainBinding
     lateinit var activityForResultLauncher: ActivityResultLauncher<Intent>
 
@@ -28,7 +29,7 @@ class MainActivity : AppCompatActivity() {
         activityForResultLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 if (result.resultCode == Activity.RESULT_OK) {
-                    //TODO load file data
+                    viewModel.loadFiles()
                 } else {
                     finish()
                 }
@@ -39,9 +40,11 @@ class MainActivity : AppCompatActivity() {
                if (!granted) {
                    launchPermissionRequestActivity()
                } else {
-                   //TODO load file data
+                   viewModel.loadFiles()
                }
            }.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+       } else {
+           viewModel.loadFiles()
        }
     }
 
