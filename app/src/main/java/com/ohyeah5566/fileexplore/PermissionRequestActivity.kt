@@ -44,7 +44,7 @@ class PermissionRequestActivity : AppCompatActivity() {
     }
 
     private fun checkPermissionAndSetTextAndAction() {
-        intent.getStringExtra("permission")?.let { permission ->
+        intent.getStringExtra(INTENT_KEY_PERMISSION)?.let { permission ->
             if (shouldShowRequestPermissionRationale(permission)) {
                 binding.requestPermission.setText(R.string.request_file_permission_button)
                 binding.requestPermission.setOnClickListener {
@@ -64,5 +64,9 @@ class PermissionRequestActivity : AppCompatActivity() {
     private fun permissionGranted(){
         setResult(Activity.RESULT_OK)
         finish()
+    }
+
+    companion object {
+        const val INTENT_KEY_PERMISSION = "permission"
     }
 }
