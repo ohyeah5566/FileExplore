@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
     private val activityForResultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
-                viewModel.loadFile(PathUtil.getRootPath())
+                viewModel.nextFile(PathUtil.getRootPath())
             } else {
                 finish()
             }
@@ -40,22 +40,35 @@ class MainActivity : AppCompatActivity() {
                 if (!granted) {
                     launchPermissionRequestActivity()
                 } else {
-                    viewModel.loadFile(PathUtil.getRootPath())
+                    viewModel.nextFile(PathUtil.getRootPath())
                 }
             }.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         } else {
-            viewModel.loadFile(PathUtil.getRootPath())
+            viewModel.nextFile(PathUtil.getRootPath())
         }
 
         binding.recyclerView.adapter = adapter
         binding.recyclerView.addItemDecoration(DividerItemDecoration(this, LinearLayout.VERTICAL))
 
         adapter.onDirClick = { file ->
+            viewModel.nextFile(file)
         }
 
         viewModel.fileList.observe(this) {
             adapter.updateFiles(it)
         }
+        viewModel.actionBarTitle.observe(this){ title ->
+            supportActionBar?.title = title
+        }
+        viewModel.finishActivityEvent.observe(this){
+            it.getContentIfNotHandled()?.let {
+                finish()
+            }
+        }
+    }
+
+    override fun onBackPressed() {
+        viewModel.previousFile()
     }
 
     private fun launchPermissionRequestActivity() {
