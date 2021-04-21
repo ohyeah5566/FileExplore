@@ -49,7 +49,8 @@ class MainActivity : AppCompatActivity() {
 
         binding.recyclerView.adapter = adapter
         binding.recyclerView.addItemDecoration(DividerItemDecoration(this, LinearLayout.VERTICAL))
-        adapter.onFileClick = {
+
+        adapter.onDirClick = { file ->
         }
 
         viewModel.fileList.observe(this) {

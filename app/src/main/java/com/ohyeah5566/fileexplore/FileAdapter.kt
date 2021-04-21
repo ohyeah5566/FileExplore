@@ -12,13 +12,12 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class FileAdapter : RecyclerView.Adapter<FileAdapter.ViewHolder>() {
-    lateinit var onFileClick: (file: File) -> Unit
+    lateinit var onDirClick: (file: File) -> Unit
     var list = emptyArray<File>()
 
     class ViewHolder(val binding: ItemImageFileBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(file: File, onFileClick: (file: File) -> Unit) {
-
+        fun bind(file: File, onDirClick: (file: File) -> Unit) {
             if (file.isFile) {
                 Glide.with(itemView.context)
                     .load(file)
@@ -39,7 +38,7 @@ class FileAdapter : RecyclerView.Adapter<FileAdapter.ViewHolder>() {
 
             binding.root.setOnClickListener {
                 if (file.isDirectory)
-                    onFileClick.invoke(file)
+                    onDirClick.invoke(file)
             }
         }
 
@@ -60,7 +59,7 @@ class FileAdapter : RecyclerView.Adapter<FileAdapter.ViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(list[position], onFileClick)
+        holder.bind(list[position], onDirClick)
     }
 
     override fun getItemCount() = list.size
