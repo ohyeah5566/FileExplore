@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!--  TODO 顯示清單/格狀icon  -->
+    <item
+        android:id="@+id/displayType"
+        android:icon="@android:drawable/ic_dialog_dialer"
+        app:showAsAction="ifRoom"
+        tools:ignore="MenuTitle" />
+
+    <item
+        android:id="@+id/action_setting"
+        android:title="排序依據"
+        app:showAsAction="never" />
+</menu>

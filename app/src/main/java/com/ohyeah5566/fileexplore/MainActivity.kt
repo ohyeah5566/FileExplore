@@ -6,8 +6,11 @@ import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_DENIED
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.LinearLayout
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.ohyeah5566.fileexplore.databinding.ActivityMainBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -34,6 +37,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PERMISSION_DENIED) {
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -57,13 +62,27 @@ class MainActivity : AppCompatActivity() {
         viewModel.fileList.observe(this) {
             adapter.updateFiles(it)
         }
-        viewModel.actionBarTitle.observe(this){ title ->
+        viewModel.actionBarTitle.observe(this) { title ->
             supportActionBar?.title = title
         }
-        viewModel.finishActivityEvent.observe(this){
+        viewModel.finishActivityEvent.observe(this) {
             it.getContentIfNotHandled()?.let {
                 finish()
             }
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.toolbar, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return if (item.itemId == android.R.id.home) {
+            viewModel.previousFile()
+            true
+        } else {
+            super.onOptionsItemSelected(item)
         }
     }
 
