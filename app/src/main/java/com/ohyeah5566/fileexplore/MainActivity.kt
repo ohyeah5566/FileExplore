@@ -8,12 +8,16 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.widget.LinearLayout
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
+import androidx.recyclerview.selection.*
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.RecyclerView
 import com.ohyeah5566.fileexplore.databinding.ActivityMainBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.io.File
 
 
 class MainActivity : AppCompatActivity() {
@@ -55,6 +59,17 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerView.adapter = adapter
         binding.recyclerView.addItemDecoration(DividerItemDecoration(this, LinearLayout.VERTICAL))
 
+        val tracker = SelectionTracker.Builder(
+            "fileSelection",
+            binding.recyclerView,
+            StableIdKeyProvider(binding.recyclerView),
+            MyItemDetailsLookup(binding.recyclerView),
+            StorageStrategy.createLongStorage()
+        ).withSelectionPredicate(
+            SelectionPredicates.createSelectAnything()
+        ).build()
+        adapter.selectionTracker = tracker
+
         adapter.onDirClick = { file ->
             viewModel.nextFile(file)
         }
@@ -71,6 +86,19 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
+    class MyItemDetailsLookup(private val recyclerView: RecyclerView) :
+        ItemDetailsLookup<Long>() {
+        override fun getItemDetails(event: MotionEvent): ItemDetails<Long>? {
+            val view = recyclerView.findChildViewUnder(event.x, event.y)
+            if (view != null) {
+                return (recyclerView.getChildViewHolder(view) as FileAdapter.FileViewHolder)
+                    .getItemDetails()
+            }
+            return null
+        }
+    }
+
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.toolbar, menu)

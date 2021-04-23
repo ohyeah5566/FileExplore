@@ -4,6 +4,8 @@ import android.text.format.Formatter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.selection.ItemDetailsLookup
+import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.ohyeah5566.fileexplore.databinding.ItemImageFileBinding
@@ -17,12 +19,21 @@ class FileAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         const val TYPE_NO_FILES = 0
         const val TYPE_FILE = 1
     }
+
+    init {
+        //因為selectionTracker用的是 StableIdKeyProvider
+        //所以要先setHasStableIds = true 還要 override getItemId
+        //不然會噴錯 (IllegalArgumentException
+        setHasStableIds(true)
+    }
+
     lateinit var onDirClick: (file: File) -> Unit
     var list = emptyArray<File>()
+    var selectionTracker: SelectionTracker<Long>? = null
 
     class FileViewHolder(val binding: ItemImageFileBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(file: File, onDirClick: (file: File) -> Unit) {
+        fun bind(file: File, onDirClick: (file: File) -> Unit, isSelected: Boolean) {
             if (file.isFile) {
                 Glide.with(itemView.context)
                     .load(file)
@@ -46,6 +57,17 @@ class FileAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                     onDirClick.invoke(file)
             }
         }
+
+        fun getItemDetails(): ItemDetailsLookup.ItemDetails<Long> =
+            object : ItemDetailsLookup.ItemDetails<Long>() {
+                override fun getPosition(): Int {
+                    return bindingAdapterPosition
+                }
+
+                override fun getSelectionKey(): Long? {
+                    return itemId
+                }
+            }
 
         companion object {
             fun createView(parent: ViewGroup) =
@@ -94,7 +116,9 @@ class FileAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is FileViewHolder) {
-            holder.bind(list[position], onDirClick)
+            selectionTracker?.let {
+                holder.bind(list[position], onDirClick, it.isSelected(position.toLong()))
+            }
         }
     }
 
@@ -103,5 +127,9 @@ class FileAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     fun updateFiles(files: Array<File>) {
         list = files
         notifyDataSetChanged()
+    }
+
+    override fun getItemId(position: Int): Long {
+        return position.toLong()
     }
 }
