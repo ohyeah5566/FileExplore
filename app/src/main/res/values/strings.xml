@@ -4,4 +4,6 @@
     <string name="explain_file_permission">如要繼續，請允許 FileExplore 存取你的檔案</string>
     <string name="request_file_permission_button">允許存取</string>
     <string name="goto_file_permission_setting">前往設定頁面</string>
+
+    <string name="no_file">這裡沒有任何檔案呢。</string>
 </resources>

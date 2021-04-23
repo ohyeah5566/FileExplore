@@ -7,15 +7,20 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.ohyeah5566.fileexplore.databinding.ItemImageFileBinding
+import com.ohyeah5566.fileexplore.databinding.NoFilesBinding
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
-class FileAdapter : RecyclerView.Adapter<FileAdapter.ViewHolder>() {
+class FileAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    private companion object {
+        const val TYPE_NO_FILES = 0
+        const val TYPE_FILE = 1
+    }
     lateinit var onDirClick: (file: File) -> Unit
     var list = emptyArray<File>()
 
-    class ViewHolder(val binding: ItemImageFileBinding) :
+    class FileViewHolder(val binding: ItemImageFileBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(file: File, onDirClick: (file: File) -> Unit) {
             if (file.isFile) {
@@ -44,7 +49,7 @@ class FileAdapter : RecyclerView.Adapter<FileAdapter.ViewHolder>() {
 
         companion object {
             fun createView(parent: ViewGroup) =
-                ViewHolder(
+                FileViewHolder(
                     ItemImageFileBinding.inflate(
                         LayoutInflater.from(parent.context),
                         parent,
@@ -54,15 +59,46 @@ class FileAdapter : RecyclerView.Adapter<FileAdapter.ViewHolder>() {
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder.createView(parent)
+    class NoFileViewHolder(val binding: NoFilesBinding) : RecyclerView.ViewHolder(binding.root) {
+        companion object {
+            fun createView(parent: ViewGroup) =
+                NoFileViewHolder(
+                    NoFilesBinding.inflate(
+                        LayoutInflater.from(parent.context),
+                        parent,
+                        false
+                    )
+                )
+        }
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(list[position], onDirClick)
+    override fun getItemViewType(position: Int): Int {
+        return if (list.isEmpty()) {
+            TYPE_NO_FILES
+        } else {
+            TYPE_FILE
+        }
     }
 
-    override fun getItemCount() = list.size
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return when (viewType) {
+            TYPE_FILE -> {
+                FileViewHolder.createView(parent)
+            }
+            else -> {
+                NoFileViewHolder.createView(parent)
+            }
+        }
+
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        if (holder is FileViewHolder) {
+            holder.bind(list[position], onDirClick)
+        }
+    }
+
+    override fun getItemCount() = if (list.isNotEmpty()) list.size else 1
 
     fun updateFiles(files: Array<File>) {
         list = files
